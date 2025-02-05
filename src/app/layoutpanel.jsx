@@ -9,11 +9,8 @@ export default function Layoutpanel({ children }) {
           <SidebarTrigger />
           {children}
         </main>
+        <footer></footer>
       </SidebarProvider>
-      <main>{children}</main>
-      <footer>
-        <p>Site Footer</p>
-      </footer>
     </div>
   );
 }

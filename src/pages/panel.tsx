@@ -1,11 +1,11 @@
 ﻿import Layoutpanel from "../app/layoutpanel";
-import Products from "@/container/products";
+import Productspanel from "@/container/productspanel";
 
 export default function Panel() {
   return (
     <>
       <Layoutpanel>
-        <Products />
+        <Productspanel />
       </Layoutpanel>
     </>
   );
