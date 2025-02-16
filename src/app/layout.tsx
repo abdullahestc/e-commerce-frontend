@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function Layout({ children }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const options = [
     { value: "option1", label: "seçenek 1" },
@@ -66,7 +66,7 @@ export default function Layout({ children }) {
               <SelectTrigger className="bg-white text-black w-[400px]">
                 <SelectValue placeholder="Seçiniz" />
               </SelectTrigger>
-              <SelectContent positioning={{ strategy: "fixed" }}>
+              <SelectContent position="popper">
                 {options.map(({ value, label }) => (
                   <SelectItem key={value} value={value}>
                     {label}
@@ -114,7 +114,7 @@ export default function Layout({ children }) {
                 <SelectTrigger className="bg-white text-black">
                   <SelectValue placeholder="Seçiniz" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   {options.map(({ value, label }) => (
                     <SelectItem value={value}>{label}</SelectItem>
                   ))}
