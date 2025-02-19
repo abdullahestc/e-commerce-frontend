@@ -47,7 +47,7 @@ const navItems = [
   { title: "Ürünler", url: "/panelproducts", icon: PackageSearch },
   {
     title: "Ürün Gurupları",
-    url: "/urun-guruplari",
+    url: "/panelproductsgroup",
     icon: ChartNoAxesGantt,
   },
   { title: "Kullanıcılar", url: "/kullanicilar", icon: Users },
