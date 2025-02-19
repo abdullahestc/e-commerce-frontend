@@ -50,7 +50,7 @@ const navItems = [
     url: "/panelproductsgroup",
     icon: ChartNoAxesGantt,
   },
-  { title: "Kullanıcılar", url: "/kullanicilar", icon: Users },
+  { title: "Kullanıcılar", url: "/paneluserpage", icon: Users },
 ];
 
 const user = {
