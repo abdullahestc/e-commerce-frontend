@@ -1,7 +1,12 @@
 ﻿"use client";
 
 import * as React from "react";
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import {
+  ChartNoAxesGantt,
+  PackageSearch,
+  Users,
+  LayoutDashboard,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -38,10 +43,14 @@ const AcmeLogo = () => (
 );
 
 const navItems = [
-  { title: "Dashboard", url: "/panel", icon: SquareTerminal },
-  { title: "Ürünler", url: "/urunler", icon: Bot },
-  { title: "Ürün Gurupları", url: "/urun-guruplari", icon: BookOpen },
-  { title: "Kullanıcılar", url: "/kullanicilar", icon: Settings2 },
+  { title: "Dashboard", url: "/panel", icon: LayoutDashboard },
+  { title: "Ürünler", url: "/panelproducts", icon: PackageSearch },
+  {
+    title: "Ürün Gurupları",
+    url: "/urun-guruplari",
+    icon: ChartNoAxesGantt,
+  },
+  { title: "Kullanıcılar", url: "/kullanicilar", icon: Users },
 ];
 
 const user = {

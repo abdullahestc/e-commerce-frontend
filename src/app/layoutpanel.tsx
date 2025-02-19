@@ -8,24 +8,13 @@ export default function Layoutpanel({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
-        {/* Sidebar */}
+      <div className="flex w-full h-screen">
         <AppSidebar />
-
-        {/* Ana İçerik Alanı */}
-        <div className="flex-1 flex flex-col">
-          {/* Sidebar Aç/Kapat Butonu */}
+        <div className="flex-1 w-full flex flex-col">
           <header className="p-4 bg-white shadow-md">
             <SidebarTrigger />
           </header>
-
-          {/* Sayfa İçeriği */}
           <main className="flex-1 p-6 bg-gray-100">{children}</main>
-
-          {/* Footer */}
-          <footer className="p-4 bg-gray-200 text-center text-sm">
-            © 2025 Tüm Hakları Saklıdır.
-          </footer>
         </div>
       </div>
     </SidebarProvider>
