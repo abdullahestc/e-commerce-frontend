@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
 
 export default function Loginpanel() {
   return (
