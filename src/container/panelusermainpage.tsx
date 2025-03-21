@@ -1,7 +1,7 @@
 ﻿"use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
-import { Edit2, Eye } from "lucide-react";
+import { Edit2, Eye, LogOut } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -9,6 +9,17 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import {
   Drawer,
   DrawerContent,
@@ -39,6 +50,9 @@ interface User {
 export default function Usermainpage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerTitle, setDrawerTitle] = useState("");
+  const handleLogout = () => {
+    console.log("Kullanıcı çıkış yaptı!");
+  };
   const [editData, setEditData] = useState({
     name: "Ahmet",
     surname: "Yılmaz",
@@ -97,7 +111,58 @@ export default function Usermainpage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center">Kullanıcılar</h1>
+      <div className="w-full max-w-screen-lg mx-auto bg-white rounded-lg shadow-md mt-8 bg-zinc-100">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Ad</TableHead>
+              <TableHead>Soyad</TableHead>
+              <TableHead>E-posta</TableHead>
+              <TableHead>Telefon</TableHead>
+              <TableHead>Parola</TableHead>
+              <TableHead className="text-right">İşlemler</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell className="font-medium">{editData.name}</TableCell>
+              <TableCell>{editData.surname}</TableCell>
+              <TableCell>{editData.email}</TableCell>
+              <TableCell>{editData.phone}</TableCell>
+              <TableCell>{editData.password}</TableCell>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="icon" onClick={toggleDrawer}>
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="icon">
+                        <LogOut className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Çıkış Yap</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Çıkış yapmak istediğinizden emin misiniz?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>İptal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleLogout}>
+                          Evet, Çıkış Yap
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+      <h1 className="text-2xl font-bold text-center m-5">Kullanıcılar</h1>
       <Card className="p-6 bg-white shadow-md rounded-lg w-full max-w-screen-lg mx-auto  mt-8">
         <CardContent>
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
