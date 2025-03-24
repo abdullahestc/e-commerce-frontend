@@ -1,7 +1,8 @@
 ﻿"use client";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
-import { Edit2, Eye, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Edit2, Eye, LogOut, Trash2 } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -41,73 +42,131 @@ interface User {
   id: number;
   name: string;
   surname: string;
-  email: string;
+  mail: string;
   phone: string;
   password: string;
-  userrole: string;
+  role: string;
 }
 
 export default function Usermainpage() {
+  const router = useRouter();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerTitle, setDrawerTitle] = useState("");
+  const [deletingIds, setDeletingIds] = useState<number[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
   const handleLogout = () => {
-    console.log("Kullanıcı çıkış yaptı!");
+    localStorage.removeItem("token");
+    router.push("/login");
   };
   const [editData, setEditData] = useState({
-    name: "Ahmet",
-    surname: "Yılmaz",
-    email: "ahmet@example.com",
-    phone: "+90 555 123 4567",
-    password: "••••••••",
-    userrole: "admin",
+    id: 0,
+    name: "",
+    surname: "",
+    mail: "",
+    phone: "",
+    password: "",
+    role: "",
   });
-
-  const users: User[] = [
-    {
-      id: 1,
-      name: "Ahmet",
-      surname: "Yılmaz",
-      email: "ahmet@example.com",
-      phone: "+90 555 123 4567",
-      password: "••••••••",
-      userrole: "admin",
-    },
-    {
-      id: 2,
-      name: "Mehmet",
-      surname: "Kaya",
-      email: "mehmet@example.com",
-      phone: "+90 555 234 5678",
-      password: "••••••••",
-      userrole: "user",
-    },
-    {
-      id: 3,
-      name: "Ayşe",
-      surname: "Demir",
-      email: "ayse@example.com",
-      phone: "+90 555 345 6789",
-      password: "••••••••",
-      userrole: "super admin",
-    },
-    {
-      id: 4,
-      name: "Fatma",
-      surname: "Şahin",
-      email: "fatma@example.com",
-      phone: "+90 555 456 7890",
-      password: "••••••••",
-      userrole: "user",
-    },
-  ];
-
-  const toggleDrawer = () => setIsDrawerOpen(!isDrawerOpen);
-
   const openDrawer = (user: User, title: string) => {
-    setEditData(user);
+    setEditData({
+      ...user,
+      role: user.role.toLowerCase(),
+    });
+
     setDrawerTitle(title);
     setIsDrawerOpen(true);
   };
+  const handleUpdateUser = async () => {
+    setIsUpdating(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${editData.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(editData),
+        }
+      );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Güncelleme başarısız");
+      }
+
+      setUsers(
+        users.map((user) =>
+          user.id === editData.id ? { ...user, ...editData } : user
+        )
+      );
+      setIsDrawerOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Güncelleme hatası");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  const handleDeleteUser = async (userId: number) => {
+    setDeletingIds((prev) => [...prev, userId]);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Silme işlemi başarısız");
+      }
+
+      setUsers(users.filter((user) => user.id !== userId));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Bilinmeyen silme hatası");
+      console.error("Silme hatası:", err);
+    } finally {
+      setDeletingIds((prev) => prev.filter((id) => id !== userId));
+    }
+  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          if (response.status === 401) router.push("/login");
+          throw new Error("Kullanıcılar alınamadı");
+        }
+
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Bilinmeyen hata");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   return (
     <>
@@ -125,14 +184,14 @@ export default function Usermainpage() {
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell className="font-medium">{editData.name}</TableCell>
-              <TableCell>{editData.surname}</TableCell>
-              <TableCell>{editData.email}</TableCell>
-              <TableCell>{editData.phone}</TableCell>
-              <TableCell>{editData.password}</TableCell>
+              <TableCell className="font-medium">{}</TableCell>
+              <TableCell>{}</TableCell>
+              <TableCell>{}</TableCell>
+              <TableCell>{}</TableCell>
+              <TableCell>{}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="icon" onClick={toggleDrawer}>
+                  <Button variant="outline" size="icon">
                     <Edit2 className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
@@ -173,9 +232,9 @@ export default function Usermainpage() {
                   <SelectValue placeholder="Rol" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Seçenek 1</SelectItem>
-                  <SelectItem value="active">Seçenek 2</SelectItem>
-                  <SelectItem value="passive">Seçenek 3</SelectItem>
+                  <SelectItem value="user">user</SelectItem>
+                  <SelectItem value="admin">admin</SelectItem>
+                  <SelectItem value="superadmin">superadmin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -197,6 +256,7 @@ export default function Usermainpage() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>ID</TableHead>
               <TableHead>Ad</TableHead>
               <TableHead>Soyad</TableHead>
               <TableHead>Mail</TableHead>
@@ -208,11 +268,12 @@ export default function Usermainpage() {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell className="font-medium">{user.name}</TableCell>
+                <TableCell>{user.id}</TableCell>
+                <TableCell>{user.name}</TableCell>
                 <TableCell>{user.surname}</TableCell>
-                <TableCell>{user.email}</TableCell>
+                <TableCell>{user.mail}</TableCell>
                 <TableCell>{user.phone}</TableCell>
-                <TableCell>{user.userrole}</TableCell>
+                <TableCell>{user.role}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
@@ -229,6 +290,38 @@ export default function Usermainpage() {
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          disabled={deletingIds.includes(user.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Kullanıcıyı Sil</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            <span className="font-semibold">
+                              {user.name} {user.surname}
+                            </span>
+                            isimli kullanıcıyı silmek üzeresiniz.
+                            <br />
+                            <strong>Bu işlem geri alınamaz!</strong>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>İptal</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteUser(user.id)}
+                          >
+                            Sil
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </TableCell>
               </TableRow>
@@ -242,96 +335,106 @@ export default function Usermainpage() {
             <DrawerTitle className="text-center">{drawerTitle}</DrawerTitle>
           </DrawerHeader>
 
-          <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[200px]">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Ad</label>
               <Input
-                type="text"
-                name="name"
                 value={editData.name}
                 onChange={(e) =>
                   setEditData({ ...editData, name: e.target.value })
                 }
-                placeholder="Ad"
+                disabled={drawerTitle === "Kullanıcı Detay"}
               />
             </div>
 
-            <div className="flex-1 min-w-[200px]">
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Soyad</label>
               <Input
-                type="text"
-                name="surname"
                 value={editData.surname}
                 onChange={(e) =>
                   setEditData({ ...editData, surname: e.target.value })
                 }
-                placeholder="Soyad"
+                disabled={drawerTitle === "Kullanıcı Detay"}
               />
             </div>
 
-            <div className="flex-1 min-w-[200px]">
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 E-posta
               </label>
               <Input
-                type="email"
-                name="email"
-                value={editData.email}
+                value={editData.mail}
                 onChange={(e) =>
-                  setEditData({ ...editData, email: e.target.value })
+                  setEditData({ ...editData, mail: e.target.value })
                 }
-                placeholder="E-posta"
+                disabled={drawerTitle === "Kullanıcı Detay"}
               />
             </div>
 
-            <div className="flex-1 min-w-[200px]">
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 Telefon
               </label>
               <Input
-                type="text"
-                name="phone"
                 value={editData.phone}
                 onChange={(e) =>
                   setEditData({ ...editData, phone: e.target.value })
                 }
-                placeholder="Telefon"
+                disabled={drawerTitle === "Kullanıcı Detay"}
               />
             </div>
-            <div className="flex-1 min-w-[200px]">
+
+            <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
                 Parola
               </label>
               <Input
-                type="text"
-                name="password"
+                type="password"
                 value={editData.password}
                 onChange={(e) =>
                   setEditData({ ...editData, password: e.target.value })
                 }
-                placeholder="Parola"
+                disabled={drawerTitle === "Kullanıcı Detay"}
               />
             </div>
-            <div className="flex-1 min-w-[200px]">
-              <label className="text-sm font-medium text-gray-700">Rol</label>
-              <Input
-                type="text"
-                name="userrole"
-                value={editData.userrole}
-                onChange={(e) =>
-                  setEditData({ ...editData, userrole: e.target.value })
-                }
-                placeholder="Rol"
-              />
-            </div>
-          </div>
 
-          <div className="mt-4 flex justify-end gap-2">
-            <Button variant="outline" onClick={toggleDrawer}>
-              İptal
-            </Button>
-            <Button variant="default">Düzenle</Button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Rol</label>
+              {drawerTitle === "Kullanıcı Detay" ? (
+                <Input value={editData.role} disabled />
+              ) : (
+                <Select
+                  value={editData.role}
+                  onValueChange={(value) =>
+                    setEditData({ ...editData, role: value })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Rol seçin" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="superadmin">super admin</SelectItem>
+                    <SelectItem value="user">user</SelectItem>
+                    <SelectItem value="admin">admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
+          {drawerTitle === "Kullanıcı Düzenle" && (
+            <div className="mt-4 flex justify-end gap-2">
+              <Button variant="outline" onClick={toggleDrawer}>
+                İptal
+              </Button>
+              <Button
+                variant="default"
+                onClick={handleUpdateUser}
+                disabled={isUpdating}
+              >
+                Kaydet
+              </Button>
+            </div>
+          )}
         </DrawerContent>
       </Drawer>
     </>
