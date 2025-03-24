@@ -1,4 +1,6 @@
-﻿import { Card, CardContent } from "@/components/ui/card";
+﻿"use client";
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   ChartNoAxesGantt,
   PackageSearch,
@@ -6,30 +8,55 @@ import {
   PackageCheck,
 } from "lucide-react";
 
-const cardData = [
-  {
-    title: "Toplam Ürün Sayısı",
-    value: "350",
-    icon: <PackageSearch className="w-8 h-8 text-blue-500" />,
-  },
-  {
-    title: "Toplam Gurup Sayısı",
-    value: "120",
-    icon: <ChartNoAxesGantt className="w-8 h-8 text-green-500" />,
-  },
-  {
-    title: "Toplam Kullanıcı Sayısı",
-    value: "45",
-    icon: <Users className="w-8 h-8 text-purple-500" />,
-  },
-  {
-    title: "Toplam Sipariş Sayısı",
-    value: "780",
-    icon: <PackageCheck className="w-8 h-8 text-orange-500" />,
-  },
-];
-
 export default function Panelmain() {
+  const [userCount, setUserCount] = useState("0");
+
+  useEffect(() => {
+    const fetchUserCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/count`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserCount(data.totalUsers);
+        }
+      } catch (err) {}
+    };
+
+    fetchUserCount();
+  }, []);
+
+  const cardData = [
+    {
+      title: "Toplam Ürün Sayısı",
+      value: "350",
+      icon: <PackageSearch className="w-8 h-8 text-blue-500" />,
+    },
+    {
+      title: "Toplam Gurup Sayısı",
+      value: "120",
+      icon: <ChartNoAxesGantt className="w-8 h-8 text-green-500" />,
+    },
+    {
+      title: "Toplam Kullanıcı Sayısı",
+      value: userCount,
+      icon: <Users className="w-8 h-8 text-purple-500" />,
+    },
+    {
+      title: "Toplam Sipariş Sayısı",
+      value: "780",
+      icon: <PackageCheck className="w-8 h-8 text-orange-500" />,
+    },
+  ];
+
   return (
     <div className="h-full w-full p-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
